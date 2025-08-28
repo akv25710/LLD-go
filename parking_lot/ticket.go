@@ -68,6 +68,13 @@ func (p *Payment) Pay(amount float64, mode PaymentMode) (*Payment, error) {
 		return p, fmt.Errorf("invalid amount")
 	}
 
+	// make payments
+	switch mode {
+	case PaymentModeCredit:
+	case PaymentModeDebit:
+	default:
+	}
+
 	p.Id = uuid.New().String()
 	p.Mode = mode
 	p.Paid = true
@@ -75,8 +82,6 @@ func (p *Payment) Pay(amount float64, mode PaymentMode) (*Payment, error) {
 	return p, nil
 }
 
-func NewPayment(mode PaymentMode) *Payment {
-	return &Payment{
-		Mode: mode,
-	}
+func NewPayment() *Payment {
+	return &Payment{}
 }

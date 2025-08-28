@@ -12,7 +12,7 @@ type ParkingLot struct {
 	Spots          []ParkingSpot
 	VehicleSpotMap map[string]ParkingSpot
 	Rates          map[ParkingType]int
-	Payment        Payment
+	Payment        *Payment
 }
 
 func (p *ParkingLot) Enter(vehicle Vehicle) error {
@@ -86,6 +86,7 @@ func GetParkingLot() *ParkingLot {
 				ParkingTypeLarge:       30,
 			},
 			mu:             sync.Mutex{},
+			Payment:        NewPayment(),
 			VehicleSpotMap: make(map[string]ParkingSpot),
 		}
 
