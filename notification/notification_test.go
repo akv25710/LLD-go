@@ -42,5 +42,5 @@ func TestNotification(t *testing.T) {
 		}(n)
 	}
 
-	time.Sleep(100 * time.Second)
+	time.Sleep(10 * time.Second)
 }
