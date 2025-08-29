@@ -14,12 +14,15 @@ type Vehicle interface {
 	AssignTicket(parking *ParkingTicket)
 	GetTicket() *ParkingTicket
 	GetType() VehicleType
+	SetSpot(spot *ParkingSpot)
+	GetSpot() *ParkingSpot
 }
 
 type BaseVehicle struct {
 	Id     string
 	Type   VehicleType
 	Ticket *ParkingTicket
+	Spot   *ParkingSpot
 }
 
 func (b *BaseVehicle) GetId() string {
@@ -36,6 +39,14 @@ func (b *BaseVehicle) GetTicket() *ParkingTicket {
 
 func (b *BaseVehicle) AssignTicket(parking *ParkingTicket) {
 	b.Ticket = parking
+}
+
+func (b *BaseVehicle) GetSpot() *ParkingSpot {
+	return b.Spot
+}
+
+func (b *BaseVehicle) SetSpot(spot *ParkingSpot) {
+	b.Spot = spot
 }
 
 func NewVehicle(vehicleType VehicleType, id string) Vehicle {

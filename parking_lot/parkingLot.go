@@ -7,11 +7,10 @@ import (
 )
 
 type ParkingLot struct {
-	mu             sync.Mutex
-	Spots          []ParkingSpot
-	VehicleSpotMap map[string]ParkingSpot
-	Rates          map[ParkingType]int
-	Payment        *Payment
+	mu      sync.Mutex
+	Spots   []ParkingSpot
+	Rates   map[ParkingType]int
+	Payment *Payment
 }
 
 func (p *ParkingLot) Enter(vehicle Vehicle) error {
@@ -32,24 +31,21 @@ func (p *ParkingLot) Enter(vehicle Vehicle) error {
 
 	ticket := NewTicket(vehicle.GetId(), availableSpot.GetID())
 	vehicle.AssignTicket(ticket)
-	if err := availableSpot.AllotVehicle(vehicle); err != nil {
-		return err
-	}
-	p.VehicleSpotMap[vehicle.GetId()] = availableSpot
+	vehicle.SetSpot(&availableSpot)
 
-	return nil
+	return availableSpot.AllotVehicle(vehicle)
 }
 
 func (p *ParkingLot) Exit(vehicle Vehicle, mode PaymentMode) (*Receipt, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	spot := p.VehicleSpotMap[vehicle.GetId()]
+	spot := vehicle.GetSpot()
 	if spot == nil {
 		return nil, fmt.Errorf("invalid exit vehicle %v", vehicle)
 	}
 
-	amount := p.CalculateAmount(vehicle, spot)
+	amount := p.CalculateAmount(vehicle, *spot)
 	ticket := vehicle.GetTicket()
 	ticket.AddExitTime()
 	ticket.AddAmount(amount)
@@ -58,7 +54,7 @@ func (p *ParkingLot) Exit(vehicle Vehicle, mode PaymentMode) (*Receipt, error) {
 		return nil, err
 	} else {
 		ticket.Paid = true
-		err := spot.ReleaseVehicle(vehicle)
+		err := (*spot).ReleaseVehicle(vehicle)
 		if err != nil {
 			return nil, err
 		}
@@ -87,9 +83,8 @@ func GetParkingLot() *ParkingLot {
 				ParkingTypeHandicapped: 5,
 				ParkingTypeLarge:       30,
 			},
-			mu:             sync.Mutex{},
-			Payment:        NewPayment(),
-			VehicleSpotMap: make(map[string]ParkingSpot),
+			mu:      sync.Mutex{},
+			Payment: NewPayment(),
 		}
 
 		// generate 100 bike spots
