@@ -2,7 +2,6 @@ package parking_lot
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"sync"
 	"time"
 )
@@ -31,7 +30,7 @@ func (p *ParkingLot) Enter(vehicle Vehicle) error {
 		return fmt.Errorf("no spot available")
 	}
 
-	ticket := NewTicket()
+	ticket := NewTicket(vehicle.GetId(), availableSpot.GetID())
 	vehicle.AssignTicket(ticket)
 	if err := availableSpot.AllotVehicle(vehicle); err != nil {
 		return err
@@ -59,9 +58,12 @@ func (p *ParkingLot) Exit(vehicle Vehicle, mode PaymentMode) (*Receipt, error) {
 		return nil, err
 	} else {
 		ticket.Paid = true
-		spot.ReleaseVehicle(vehicle)
+		err := spot.ReleaseVehicle(vehicle)
+		if err != nil {
+			return nil, err
+		}
 		return &Receipt{
-			ID:            uuid.New().String(),
+			ID:            "REC_" + RandomAlphaNumeric(5),
 			ParkingTicket: *ticket,
 			Payment:       payment,
 		}, nil
@@ -92,22 +94,22 @@ func GetParkingLot() *ParkingLot {
 
 		// generate 100 bike spots
 		for i := 1; i <= 100; i++ {
-			id := "BIKE_" + uuid.New().String()
+			id := "BIKE_" + RandomAlphaNumeric(6)
 			p.Spots = append(p.Spots, NewParkingSpot(ParkingTypeBike, id))
 		}
 
 		for i := 1; i <= 50; i++ {
-			id := "HANDI_" + uuid.New().String()
+			id := "HANDI_" + RandomAlphaNumeric(6)
 			p.Spots = append(p.Spots, NewParkingSpot(ParkingTypeHandicapped, id))
 		}
 
 		for i := 1; i <= 30; i++ {
-			id := "LARGE_" + uuid.New().String()
+			id := "LARGE_" + RandomAlphaNumeric(6)
 			p.Spots = append(p.Spots, NewParkingSpot(ParkingTypeLarge, id))
 		}
 
 		for i := 1; i <= 80; i++ {
-			id := "COMP_" + uuid.New().String()
+			id := "COMP_" + RandomAlphaNumeric(6)
 			p.Spots = append(p.Spots, NewParkingSpot(ParkingTypeCompact, id))
 		}
 	}

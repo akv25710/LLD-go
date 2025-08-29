@@ -2,7 +2,6 @@ package parking_lot
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"time"
 )
 
@@ -25,16 +24,20 @@ const (
 
 type ParkingTicket struct {
 	Id      string
+	Vehicle string
+	Spot    string
 	Paid    bool
 	InTime  time.Time
 	OutTime time.Time
 	Amount  float64
 }
 
-func NewTicket() *ParkingTicket {
+func NewTicket(vehicle string, spot string) *ParkingTicket {
 	return &ParkingTicket{
-		Id:     uuid.New().String(),
-		InTime: time.Now(),
+		Vehicle: vehicle,
+		Spot:    spot,
+		Id:      "TICK_" + RandomAlphaNumeric(6),
+		InTime:  time.Now(),
 	}
 }
 
@@ -63,7 +66,6 @@ type Payment struct {
 func (p *Payment) Pay(amount float64, mode PaymentMode) (*Payment, error) {
 	// fake implementation, later you can extend logic for each mode
 	if amount <= 0 {
-		p.Id = uuid.New().String()
 		p.Status = PaymentStatusFailed
 		return p, fmt.Errorf("invalid amount")
 	}
@@ -75,7 +77,7 @@ func (p *Payment) Pay(amount float64, mode PaymentMode) (*Payment, error) {
 	default:
 	}
 
-	p.Id = uuid.New().String()
+	p.Id = "PAY_" + RandomAlphaNumeric(6)
 	p.Mode = mode
 	p.Paid = true
 	p.Status = PaymentStatusSuccess
